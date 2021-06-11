@@ -20,8 +20,9 @@ import {
   faSignal,
   faBatteryFull,
   faEllipsisH,
+  faPuzzlePiece,
 } from "@fortawesome/free-solid-svg-icons";
-import { faDotCircle } from "@fortawesome/free-regular-svg-icons";
+import { faDotCircle, faPlusSquare } from "@fortawesome/free-regular-svg-icons";
 
 library.add(
   fab,
@@ -39,7 +40,9 @@ library.add(
   faSignal,
   faBatteryFull,
   faEllipsisH,
-  faDotCircle
+  faDotCircle,
+  faPuzzlePiece,
+  faPlusSquare
 );
 
 function App() {

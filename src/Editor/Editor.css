@@ -2,7 +2,6 @@
   width: 375px;
   height: 812px;
   @apply border rounded-3xl bg-white shadow-2xl flex flex-col;
-  overflow: hidden;
 }
 .viewport-simulator .navigation-bar {
   height: 40px;
@@ -25,4 +24,13 @@
 }
 .wx-mini-app-simulator .wx-mini-app-simulator-navigation-bar .wx-mini-app-simulator-navigation-bar-title {
     @apply h-full font-medium flex items-center;
+}
+.wx-mini-app-simulator .wx-mini-app-page-render-section {
+    min-height: 812px;
+    @apply border;
+}
+.wx-mini-app-simulator .wx-mini-app-page-render-section .configurable-block {
+    height: 200px;
+    @apply border border-white hover:border-blue-500 bg-gray-200 flex flex-col justify-center items-center;
+    cursor: pointer;
 }
