@@ -1,0 +1,63 @@
+.canvas-section {
+  .viewport-simulator {
+    width: 375px;
+    height: 812px;
+    overflow: hidden;
+    @apply border rounded-3xl bg-white shadow-2xl flex flex-col;
+    .navigation-bar {
+      height: 40px;
+      @apply flex justify-between items-center px-4 py-8;
+      .left-side {
+        @apply flex;
+      }
+    }
+  }
+  .wx-mini-app-simulator {
+    @apply flex-auto relative;
+    .right-top-corner-capsule {
+      width: 87px;
+      height: 30px;
+      @apply border top-0 right-4 absolute rounded-2xl;
+    }
+    .wx-mini-app-simulator-navigation-bar {
+      height: 30px;
+      @apply flex items-center justify-center;
+      .wx-mini-app-simulator-navigation-bar-title {
+        @apply h-full font-medium flex items-center;
+      }
+    }
+  }
+  .wx-mini-app-page-render-section {
+    max-height: 812px;
+    overflow-y: scroll;
+    @apply h-full border pt-4 pb-32;
+    .configurable-block {
+      height: 200px;
+      @apply relative border border-white hover:border-blue-500 bg-gray-200 flex flex-col justify-center items-center;
+      cursor: pointer;
+      .add-section-btn {
+        @apply absolute -translate-x-1/2;
+        &.add-above {
+          @apply -top-3 invisible;
+        }
+        &.add-below {
+          @apply -bottom-3 invisible;
+        }
+      }
+      .focusing-block {
+        @apply border-blue-500;
+      }
+      &.rendering-elements {
+        @apply bg-white flex-row flex-wrap;
+      }
+      &:hover {
+        .add-section-btn {
+          &.add-above,
+          &.add-below {
+            @apply visible;
+          }
+        }
+      }
+    }
+  }
+}
