@@ -3,18 +3,19 @@ import logo from "../assets/images/foryo_logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { v4 as uuid } from "uuid";
 import "./Editor.scss";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import forYoElements from "../elements";
+import Section from "../Section";
+import SectionTemplateModal from "../SectionTemplateModal";
+import { useAppSelector, useAppDispatch } from "../hooks";
+import blockRenderer from "../blockRenderer";
+import { updateAnchorBlock } from "./EditorSlice";
+import isEmpty from "lodash/isEmpty";
+import { AnchorBlock } from "../types";
 
 function Editor() {
-  const wxMiniAppElements = [
-    { name: "按钮", type: "button", icon: "toggle-off", id: uuid() },
-    { name: "图标", type: "icon", icon: "icons", id: uuid() },
-    { name: "文本", type: "text", icon: "align-left", id: uuid() },
-    { name: "滑动条", type: "slider", icon: "sliders-h", id: uuid() },
-    { name: "图片", type: "image", icon: "images", id: uuid() },
-    { name: "视频", type: "video", icon: "video", id: uuid() },
-    { name: "地图", type: "map", icon: "map-marked-alt", id: uuid() },
-    { name: "轮播图", type: "carousel", icon: "columns", id: uuid() },
-  ];
+  const blocks = useAppSelector((state) => state.blocks);
+  const dispatch = useAppDispatch();
 
   const wxMiniAppElementTemplates = {
     button: '<button type="primary">确定</button>',
@@ -29,43 +30,20 @@ function Editor() {
     text: `<view style="padding: 32rpx; width:100%;box-sizing: border-box;">这是一段测试文本用来测试通过后台配置的小程序文本组件是否正常展示，如果你正在阅读这段话，说明文本组件配置正常</view>`,
   };
 
-  const elementRenderer = (elements) =>
-    elements.map((element) => (
-      <div className="border px-4 py-1 rounded-lg bg-blue-500 text-white">
-        {element.type}
-      </div>
-    ));
-
-  const [configurableBlocks, updateConfigurableBlocks] = useState([]);
-
+  const [configurableBlocks, updateConfigurableBlocks] = useState<any[]>([]);
   const [focusingBlock, updateFocusingBlock] = useState();
 
-  const addConfigurableClock = (direction, index) => {
-    if (index === undefined) {
-      updateConfigurableBlocks((prevState) => [
-        ...prevState,
-        { id: uuid(), elements: [] },
-      ]);
-      return;
-    }
-    if (direction === "above") {
-      updateConfigurableBlocks((prevState) => {
-        let temp = [...prevState];
-        console.log(temp);
-        if (index === 0) {
-          console.log([{ id: uuid(), elements: [] }, ...temp]);
-          return [{ id: uuid(), elements: [] }, ...temp];
-        }
-        temp.splice(index, 0, { id: uuid(), elements: [] });
-        return temp;
-      });
-    } else {
-      updateConfigurableBlocks((prevState) => {
-        let temp = [...prevState];
-        temp.splice(index+1, 0, { id: uuid(), elements: [] });
-        return temp;
-      });
-    }
+  const addConfigurableClock = (
+    position?: "above" | "below",
+    index?: number
+  ) => {
+    const anchorBlock =
+      index !== undefined && position !== undefined
+        ? { position, index }
+        : null;
+
+    dispatch(updateAnchorBlock(anchorBlock));
+    openSectionTemplateModal();
   };
 
   const handleBlockFocus = (index) => {
@@ -79,7 +57,7 @@ function Editor() {
       }
       return {
         ...block,
-        elements: block.elements.concat([{ type: element.type }]),
+        elements: block.elements.concat(element),
       };
     });
 
@@ -117,6 +95,10 @@ function Editor() {
     }
   }, [isSaved]);
 
+  const [isSectionTemplateModalOpen, updateIsSectionTemplateModalOpen] =
+    useState<boolean>(false);
+  const openSectionTemplateModal = () => updateIsSectionTemplateModalOpen(true);
+
   const compileToWXML = (block, index) =>
     `<view class='block_${index}'>${block.elements.reduce(
       (acc, cur) => acc + wxMiniAppElementTemplates[cur.type],
@@ -138,14 +120,14 @@ function Editor() {
       <main className="flex-auto flex">
         <div className="leftside-bar border h-full w-24">
           <ul className="elements flex flex-col">
-            {wxMiniAppElements.map((element) => (
+            {forYoElements.map((element) => (
               <li
                 key={element.id}
                 className="flex flex-col items-center hover:bg-gray-100 py-4"
                 onClick={() => addElementIntoBlock(element)}
               >
                 <FontAwesomeIcon
-                  icon={element.icon}
+                  icon={element.icon as IconProp}
                   className="text-2xl mb-1"
                 />
                 <span>{element.name}</span>
@@ -181,12 +163,12 @@ function Editor() {
                 </div>
               </div>
               <div className="wx-mini-app-page-render-section">
-                {configurableBlocks.map((block, index) => (
+                {blocks.map((block, index) => (
                   <div
                     id={block.id}
                     className={`configurable-block ${
                       index === focusingBlock ? "focusing-block" : ""
-                    } ${block.elements.length ? "rendering-elements" : ""}`}
+                    }`}
                     onClick={() => handleBlockFocus(index)}
                   >
                     <button
@@ -195,18 +177,7 @@ function Editor() {
                     >
                       新增区域
                     </button>
-                    {block.elements.length ? (
-                      elementRenderer(block.elements)
-                    ) : (
-                      <>
-                        <FontAwesomeIcon
-                          className="mb-4"
-                          icon="puzzle-piece"
-                          size="3x"
-                        />
-                        <span>点击配置该区域</span>
-                      </>
-                    )}
+                    {blockRenderer(block)}
                     <button
                       className="add-section-btn add-below w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
                       onClick={() => addConfigurableClock("below", index)}
@@ -217,7 +188,7 @@ function Editor() {
                 ))}
                 <button
                   className="w-4/5 mx-auto flex justify-center items-center my-4 py-4 border border-black"
-                  onClick={addConfigurableClock}
+                  onClick={() => addConfigurableClock()}
                 >
                   <FontAwesomeIcon className="text-xl" icon="plus" />
                   <span className="mx-2">新增区域</span>
@@ -240,7 +211,12 @@ function Editor() {
           保存成功
         </div>
       )}
-      <div className="templates"></div>
+      <div className="templates">
+        <SectionTemplateModal
+          open={isSectionTemplateModalOpen}
+          close={() => updateIsSectionTemplateModalOpen(false)}
+        />
+      </div>
     </div>
   );
 }

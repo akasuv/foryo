@@ -36,7 +36,7 @@
       @apply relative border border-white hover:border-blue-500 bg-gray-200 flex flex-col justify-center items-center;
       cursor: pointer;
       .add-section-btn {
-        @apply absolute -translate-x-1/2;
+        @apply absolute -translate-x-1/2 z-10;
         &.add-above {
           @apply -top-3 invisible;
         }
