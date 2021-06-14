@@ -12,10 +12,19 @@ import blockRenderer from "../blockRenderer";
 import { updateAnchorBlock } from "./EditorSlice";
 import isEmpty from "lodash/isEmpty";
 import { AnchorBlock } from "../types";
+import { Menu, MenuItem, Popover, Typography } from "@material-ui/core";
+import BlockEditMenu from "../BlockEditMenu";
 
 function Editor() {
   const blocks = useAppSelector((state) => state.blocks);
   const dispatch = useAppDispatch();
+  const [anchorEl, updateAnchorEl] = useState<HTMLElement | null>(null);
+  const [isBlockEditMenuOpen, updateIsBlockEditMenuOpen] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    console.log("Anchor changed", anchorEl);
+  }, [anchorEl]);
 
   const wxMiniAppElementTemplates = {
     button: '<button type="primary">确定</button>',
@@ -166,11 +175,18 @@ function Editor() {
                 {blocks.map((block, index) => (
                   <div
                     id={block.id}
-                    className={`configurable-block ${
+                    className={`configurable-block relative ${
                       index === focusingBlock ? "focusing-block" : ""
                     }`}
                     onClick={() => handleBlockFocus(index)}
+                    onMouseEnter={(event) => {
+                      updateAnchorEl(event.currentTarget);
+                    }}
+                    // onMouseLeave={(e) => {
+                    //   updateAnchorEl(null);
+                    // }}
                   >
+                    <BlockEditMenu anchorElement={anchorEl} />
                     <button
                       className="add-section-btn add-above w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
                       onClick={() => addConfigurableClock("above", index)}

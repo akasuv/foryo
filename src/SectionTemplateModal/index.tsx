@@ -52,6 +52,7 @@ export default function SectionTemplateModal(props) {
 
   const selectTemplate = (template: BlockTemplate) => {
     dispatch(addBlock({ anchorBlock, template }));
+    props.close();
   };
 
   return (
