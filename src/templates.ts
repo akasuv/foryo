@@ -5,6 +5,10 @@ export const templates = [
     type: "Card",
     props: {
       classes: {},
+      style: {
+        width: "300px",
+        height: "500px",
+      },
       children: [
         {
           type: "CardActionArea",
@@ -95,6 +99,10 @@ export const templates = [
     type: "Card",
     props: {
       classes: {},
+      style: {
+        width: "300px",
+        height: "500px",
+      },
       children: [
         {
           type: "CardActionArea",
@@ -125,7 +133,7 @@ export const templates = [
                         gutterBottom: true,
                         variant: "h5",
                         component: "h2",
-                        // children: ["Lizard"],
+                        children: ["Lizard"],
                       },
                     },
                     {
@@ -136,13 +144,12 @@ export const templates = [
                         variant: "body2",
                         component: "p",
                         color: "textSecondary",
-                        /*
-                                                                    children: [
-                                                                      `
+
+                        children: [
+                          `
                                                                 Lizards are a widespread group of squamate reptiles, with over 6,000
                                                                 species, ranging across all continents except Antarctica`,
-                                                                    ],
-                                              */
+                        ],
                       },
                     },
                   ],

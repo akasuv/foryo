@@ -17,8 +17,6 @@ const blockSlice = createSlice({
     ) => {
       const { anchorBlock, template } = action.payload;
 
-      console.log("AnchorBlock", anchorBlock)
-
       if (!anchorBlock) {
         return state.concat(action.payload.template);
       }
@@ -27,7 +25,6 @@ const blockSlice = createSlice({
       let temp = [...state];
       if (position === "above") {
         if (index === 0) {
-            console.log("Above first", position, index, temp, [template, ...temp])
           return [template, ...temp];
         }
         temp.splice(index, 0, template);
@@ -37,8 +34,19 @@ const blockSlice = createSlice({
 
       return temp;
     },
+    updateBlock: (
+      state,
+      action: PayloadAction<{ blockIndex: number; template: BlockTemplate }>
+    ) => {
+      let stateCopy = [...state];
+      stateCopy.splice(action.payload.blockIndex, 1, action.payload.template);
+      return stateCopy;
+    },
+    deleteBlock: (state, action: PayloadAction<{ blockIndex: number }>) => {
+      return state.filter((_, index) => index !== action.payload.blockIndex);
+    },
   },
 });
 
-export const { addBlock } = blockSlice.actions;
+export const { addBlock, updateBlock, deleteBlock } = blockSlice.actions;
 export default blockSlice.reducer;

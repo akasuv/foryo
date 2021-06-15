@@ -10,6 +10,7 @@ import SectionTemplateModal from "../SectionTemplateModal";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import blockRenderer from "../blockRenderer";
 import { updateAnchorBlock } from "./EditorSlice";
+import { deleteBlock } from "../SectionTemplateModal/selectedTemplateSlice";
 import isEmpty from "lodash/isEmpty";
 import { AnchorBlock } from "../types";
 import { Menu, MenuItem, Popover, Typography } from "@material-ui/core";
@@ -18,13 +19,19 @@ import BlockEditMenu from "../BlockEditMenu";
 function Editor() {
   const blocks = useAppSelector((state) => state.blocks);
   const dispatch = useAppDispatch();
-  const [anchorEl, updateAnchorEl] = useState<HTMLElement | null>(null);
+  const [anchor, updateAnchor] = useState<{
+    element: HTMLElement;
+    index: number;
+  } | null>(null);
   const [isBlockEditMenuOpen, updateIsBlockEditMenuOpen] =
     useState<boolean>(false);
+  const [hoveringBlockIndex, updateHoveringBlockIndex] = useState<
+    number | null
+  >(null);
 
-  useEffect(() => {
-    console.log("Anchor changed", anchorEl);
-  }, [anchorEl]);
+  const handleBlockHover = (index) => {
+    updateHoveringBlockIndex(index);
+  };
 
   const wxMiniAppElementTemplates = {
     button: '<button type="primary">确定</button>',
@@ -107,6 +114,9 @@ function Editor() {
   const [isSectionTemplateModalOpen, updateIsSectionTemplateModalOpen] =
     useState<boolean>(false);
   const openSectionTemplateModal = () => updateIsSectionTemplateModalOpen(true);
+  const [layoutChangeBlockIndex, updateLayoutChangeBlockIndex] = useState<
+    number | null
+  >(null);
 
   const compileToWXML = (block, index) =>
     `<view class='block_${index}'>${block.elements.reduce(
@@ -175,18 +185,30 @@ function Editor() {
                 {blocks.map((block, index) => (
                   <div
                     id={block.id}
-                    className={`configurable-block relative ${
+                    className={`configurable-block ${
                       index === focusingBlock ? "focusing-block" : ""
                     }`}
                     onClick={() => handleBlockFocus(index)}
                     onMouseEnter={(event) => {
-                      updateAnchorEl(event.currentTarget);
+                      handleBlockHover(index);
+                      updateAnchor({ element: event.currentTarget, index });
                     }}
                     // onMouseLeave={(e) => {
                     //   updateAnchorEl(null);
                     // }}
                   >
-                    <BlockEditMenu anchorElement={anchorEl} />
+                    {index === hoveringBlockIndex && (
+                      <BlockEditMenu
+                        anchor={anchor}
+                        handleLayoutChange={() => {
+                          updateIsSectionTemplateModalOpen(true);
+                          updateLayoutChangeBlockIndex(index);
+                        }}
+                        handleBlockDelete={() =>
+                          dispatch(deleteBlock({ blockIndex: index }))
+                        }
+                      />
+                    )}
                     <button
                       className="add-section-btn add-above w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
                       onClick={() => addConfigurableClock("above", index)}
@@ -230,7 +252,11 @@ function Editor() {
       <div className="templates">
         <SectionTemplateModal
           open={isSectionTemplateModalOpen}
-          close={() => updateIsSectionTemplateModalOpen(false)}
+          close={() => {
+            updateIsSectionTemplateModalOpen(false);
+            updateLayoutChangeBlockIndex(null);
+          }}
+          layoutChangeBlockIndex={layoutChangeBlockIndex}
         />
       </div>
     </div>

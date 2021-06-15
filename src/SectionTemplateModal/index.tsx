@@ -18,7 +18,7 @@ import Paper from "@material-ui/core/Paper";
 import Section from "../Section";
 import { templates } from "../templates";
 import blockRenderer from "../blockRenderer";
-import { addBlock } from "./selectedTemplateSlice";
+import { addBlock, updateBlock } from "./selectedTemplateSlice";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { BlockTemplate } from "../types";
 
@@ -38,7 +38,7 @@ const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children?: React.ReactElement },
   ref: React.Ref<unknown>
 ) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction="left" ref={ref} {...props} />;
 });
 
 export default function SectionTemplateModal(props) {
@@ -51,7 +51,13 @@ export default function SectionTemplateModal(props) {
   };
 
   const selectTemplate = (template: BlockTemplate) => {
-    dispatch(addBlock({ anchorBlock, template }));
+    if (props.layoutChangeBlockIndex !== null) {
+      dispatch(
+        updateBlock({ blockIndex: props.layoutChangeBlockIndex, template })
+      );
+    } else {
+      dispatch(addBlock({ anchorBlock, template }));
+    }
     props.close();
   };
 
