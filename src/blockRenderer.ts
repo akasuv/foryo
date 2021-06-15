@@ -11,11 +11,19 @@ const blockRenderer = (element) => {
       ? element.props.children.map((child) => blockRenderer(child))
       : undefined;
 
-  return React.createElement(
-    MaterialComponent[element.type],
-    element.props,
-    children
-  );
+  let component;
+
+  if (element.props && element.props.component) {
+    component = element.props.component;
+  }
+
+  return component === "p" || component === "h2"
+    ? React.createElement("p", element.props, element.props.children)
+    : React.createElement(
+        MaterialComponent[element.type],
+        element.props,
+        children
+      );
 };
 
 export default blockRenderer;

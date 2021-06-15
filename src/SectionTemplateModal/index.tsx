@@ -21,6 +21,8 @@ import blockRenderer from "../blockRenderer";
 import { addBlock, updateBlock } from "./selectedTemplateSlice";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import { BlockTemplate } from "../types";
+import "./index.scss"
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,7 +71,9 @@ export default function SectionTemplateModal(props) {
         onClose={handleClose}
         TransitionComponent={Transition}
       >
-        <AppBar className={classes.appBar}>
+        <AppBar
+          className={`${classes.appBar} bg-gradient-to-r from-green-400 to-blue-500 relative`}
+        >
           <Toolbar>
             <IconButton
               edge="start"
@@ -82,9 +86,6 @@ export default function SectionTemplateModal(props) {
             <Typography variant="h6" className={classes.title}>
               选择布局
             </Typography>
-            <Button autoFocus color="inherit" onClick={handleClose}>
-              save
-            </Button>
           </Toolbar>
         </AppBar>
         <Grid container spacing={1} className="p-8">
@@ -92,9 +93,9 @@ export default function SectionTemplateModal(props) {
             <Grid
               container
               item
-              xs={12}
+              xs={3}
               spacing={3}
-              className="p-4"
+              className="p-4 justify-center template-grid"
               onClick={() => selectTemplate(template)}
             >
               {blockRenderer(template)}

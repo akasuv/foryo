@@ -137,23 +137,6 @@ function Editor() {
         </span>
       </header>
       <main className="flex-auto flex">
-        <div className="leftside-bar border h-full w-24">
-          <ul className="elements flex flex-col">
-            {forYoElements.map((element) => (
-              <li
-                key={element.id}
-                className="flex flex-col items-center hover:bg-gray-100 py-4"
-                onClick={() => addElementIntoBlock(element)}
-              >
-                <FontAwesomeIcon
-                  icon={element.icon as IconProp}
-                  className="text-2xl mb-1"
-                />
-                <span>{element.name}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
         <div className="canvas-section border flex-auto bg-gray-100 flex justify-center items-center">
           <div className="viewport-simulator">
             <div className="navigation-bar">
@@ -178,7 +161,7 @@ function Editor() {
               </div>
               <div className="wx-mini-app-simulator-navigation-bar">
                 <div className="wx-mini-app-simulator-navigation-bar-title">
-                  小程序名称
+                 MINI APP :)
                 </div>
               </div>
               <div className="wx-mini-app-page-render-section">
