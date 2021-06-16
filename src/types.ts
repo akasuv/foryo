@@ -11,6 +11,7 @@ export interface ForYoElement {
 export interface BlockTemplate {
   id: string;
   type: string;
+  props: { children?: any[]; image?: string; style?: {} };
 }
 
 export interface AnchorBlock {
