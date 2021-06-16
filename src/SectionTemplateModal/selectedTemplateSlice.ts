@@ -45,8 +45,11 @@ const blockSlice = createSlice({
     deleteBlock: (state, action: PayloadAction<{ blockIndex: number }>) => {
       return state.filter((_, index) => index !== action.payload.blockIndex);
     },
+    clearBlock: (state, action: PayloadAction) => {
+      return [];
+    },
   },
 });
 
-export const { addBlock, updateBlock, deleteBlock } = blockSlice.actions;
+export const { addBlock, updateBlock, deleteBlock, clearBlock } = blockSlice.actions;
 export default blockSlice.reducer;

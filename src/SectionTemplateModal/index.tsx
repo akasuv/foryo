@@ -93,8 +93,8 @@ export default function SectionTemplateModal(props) {
             <Grid
               container
               item
-              xs={3}
-              spacing={3}
+              xs={4}
+              spacing={4}
               className="p-4 justify-center template-grid"
               onClick={() => selectTemplate(template)}
             >

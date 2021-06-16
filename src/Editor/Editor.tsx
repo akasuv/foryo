@@ -10,11 +10,15 @@ import SectionTemplateModal from "../SectionTemplateModal";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import blockRenderer from "../blockRenderer";
 import { updateAnchorBlock } from "./EditorSlice";
-import { deleteBlock } from "../SectionTemplateModal/selectedTemplateSlice";
+import {
+  deleteBlock,
+  clearBlock,
+} from "../SectionTemplateModal/selectedTemplateSlice";
 import isEmpty from "lodash/isEmpty";
 import { AnchorBlock } from "../types";
 import { Menu, MenuItem, Popover, Typography } from "@material-ui/core";
 import BlockEditMenu from "../BlockEditMenu";
+import templateCompiler from "../templateCompiler";
 
 function Editor() {
   const blocks = useAppSelector((state) => state.blocks);
@@ -28,6 +32,7 @@ function Editor() {
   const [hoveringBlockIndex, updateHoveringBlockIndex] = useState<
     number | null
   >(null);
+  const [isReset, updateIsReset] = useState<boolean>(false);
 
   const handleBlockHover = (index) => {
     updateHoveringBlockIndex(index);
@@ -82,24 +87,35 @@ function Editor() {
 
   const [isSaved, updateIsSaved] = useState(false);
   const handleSave = () => {
-    const compiledRes = configurableBlocks.length
-      ? configurableBlocks
-          .map((block, index) => compileToWXML(block, index))
-          .join("")
-      : `<view style="width: 100%; height: 600rpx;font-size: 36rpx; display: flex; justify-content: center; align-items: center">随心所欲创建你的小程序 🚀</view>`;
-
     fetch("http://localhost:3333/update", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        wxml: compiledRes,
+        wxml: blocks.map(templateCompiler).join(""),
       }),
     })
       .then((res) => res.json())
       .then((data) => {
         updateIsSaved(data.success);
+      });
+  };
+
+  const handleReset = () => {
+    dispatch(clearBlock());
+    fetch("http://localhost:3333/update", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        wxml: `<view style='text-align: center; height: 300px; line-height:300px'>随心所欲创建你的小程序🚀</view>`,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        updateIsReset(data.success);
       });
   };
 
@@ -109,7 +125,13 @@ function Editor() {
         updateIsSaved(false);
       }, 3000);
     }
-  }, [isSaved]);
+
+    if (isReset) {
+      setTimeout(() => {
+        updateIsReset(false);
+      }, 3000);
+    }
+  }, [isSaved, isReset]);
 
   const [isSectionTemplateModalOpen, updateIsSectionTemplateModalOpen] =
     useState<boolean>(false);
@@ -161,7 +183,7 @@ function Editor() {
               </div>
               <div className="wx-mini-app-simulator-navigation-bar">
                 <div className="wx-mini-app-simulator-navigation-bar-title">
-                 MINI APP :)
+                  MINI APP :)
                 </div>
               </div>
               <div className="wx-mini-app-page-render-section">
@@ -225,11 +247,22 @@ function Editor() {
           >
             保存
           </button>
+          <button
+            className="px-4 py-1 border bg-red-400 text-white"
+            onClick={handleReset}
+          >
+            重置
+          </button>
         </div>
       </main>
       {isSaved && (
         <div className="font-bold text-2xl absolute top-8 inset-x-2/4 w-max px-4 py-2 text-green-400">
           保存成功
+        </div>
+      )}
+      {isReset && (
+        <div className="font-bold text-2xl absolute top-8 inset-x-2/4 w-max px-4 py-2 text-green-400">
+          重置成功
         </div>
       )}
       <div className="templates">
