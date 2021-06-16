@@ -1,7 +1,9 @@
 {
   "name": "foryo",
   "version": "0.0.1",
+  "license": "MIT",
   "private": true,
+  "author": "Chris Su",
   "dependencies": {
     "@craco/craco": "^6.1.2",
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
