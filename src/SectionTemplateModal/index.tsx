@@ -14,8 +14,6 @@ import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
 import { TransitionProps } from "@material-ui/core/transitions";
 import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import Section from "../Section";
 import { templates } from "../templates";
 import blockRenderer from "../blockRenderer";
 import { addBlock, updateBlock } from "./selectedTemplateSlice";

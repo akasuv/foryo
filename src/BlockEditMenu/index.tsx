@@ -12,7 +12,6 @@ import { useAppDispatch } from "../hooks";
 import { useDispatch } from "react-redux";
 
 export default function BlockEditMenu({
-  anchor,
   handleLayoutChange,
   handleBlockDelete,
 }) {

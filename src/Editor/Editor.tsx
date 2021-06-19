@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import logo from "../assets/images/foryo_logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { v4 as uuid } from "uuid";
 import "./Editor.scss";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import forYoElements from "../elements";
-import Section from "../Section";
 import SectionTemplateModal from "../SectionTemplateModal";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import blockRenderer from "../blockRenderer";
@@ -14,11 +10,10 @@ import {
   deleteBlock,
   clearBlock,
 } from "../SectionTemplateModal/selectedTemplateSlice";
-import isEmpty from "lodash/isEmpty";
-import { AnchorBlock } from "../types";
-import { Menu, MenuItem, Popover, Typography } from "@material-ui/core";
+import { Tooltip, Fade } from "@material-ui/core";
 import BlockEditMenu from "../BlockEditMenu";
 import templateCompiler from "../templateCompiler";
+import Editable from "../Editable";
 
 function Editor() {
   const blocks = useAppSelector((state) => state.blocks);
@@ -27,31 +22,7 @@ function Editor() {
     element: HTMLElement;
     index: number;
   } | null>(null);
-  const [isBlockEditMenuOpen, updateIsBlockEditMenuOpen] =
-    useState<boolean>(false);
-  const [hoveringBlockIndex, updateHoveringBlockIndex] = useState<
-    number | null
-  >(null);
   const [isReset, updateIsReset] = useState<boolean>(false);
-
-  const handleBlockHover = (index) => {
-    updateHoveringBlockIndex(index);
-  };
-
-  const wxMiniAppElementTemplates = {
-    button: '<button type="primary">确定</button>',
-    carousel: `<view>
-<view style="padding-left: 32rpx; margin-bottom: 16rpx;font-size: 36rpx">商品轮播图</view>
-<scroll-view className="scroll-view_H" scroll-x="true" bindscroll="scroll" style="width: 100%; white-space: nowrap">
-        <view id="demo1" className="scroll-view-item_H demo-text-1" style="display: inline-block;text-align: center;width: 100%"><image src="https://cdn.alzashop.com/Foto/f16/RI/RI035d1.jpg" mode="aspectFit" style="diaplay: inline-block;height: 300rpx" /></view>
-        <view id="demo2" className="scroll-view-item_H demo-text-2" style="display: inline-block;text-align: center;width: 100%"><image src="https://cdn.alzashop.com/Foto/f16/RI/RI035d1.jpg" mode="aspectFit" style="diaplay: inline-block;height: 300rpx" /></view>
-        <view id="demo3" className="scroll-view-item_H demo-text-3" style="display: inline-block;text-align: center;width: 100%"><image src="https://cdn.alzashop.com/Foto/f16/RI/RI035d1.jpg" mode="aspectFit" style="diaplay: inline-block;height: 300rpx" /></view>
-    </scroll-view></view>`,
-    video: `<view style="width: 100%; box-sizing: border-box; padding: 32rpx"><view style="font-size: 36rpx">播放视频</view><video src='' style="width: 100%; height: 400rpx"/></view>`,
-    text: `<view style="padding: 32rpx; width:100%;box-sizing: border-box;">这是一段测试文本用来测试通过后台配置的小程序文本组件是否正常展示，如果你正在阅读这段话，说明文本组件配置正常</view>`,
-  };
-
-  const [configurableBlocks, updateConfigurableBlocks] = useState<any[]>([]);
   const [focusingBlock, updateFocusingBlock] = useState();
 
   const addConfigurableClock = (
@@ -69,20 +40,6 @@ function Editor() {
 
   const handleBlockFocus = (index) => {
     updateFocusingBlock(index);
-  };
-
-  const addElementIntoBlock = (element) => {
-    let newBlocks = configurableBlocks.map((block, index) => {
-      if (index !== focusingBlock) {
-        return block;
-      }
-      return {
-        ...block,
-        elements: block.elements.concat(element),
-      };
-    });
-
-    updateConfigurableBlocks(newBlocks);
   };
 
   const [isSaved, updateIsSaved] = useState(false);
@@ -140,12 +97,6 @@ function Editor() {
     number | null
   >(null);
 
-  const compileToWXML = (block, index) =>
-    `<view class='block_${index}'>${block.elements.reduce(
-      (acc, cur) => acc + wxMiniAppElementTemplates[cur.type],
-      ""
-    )}</view>`;
-
   return (
     <div className="border h-screen flex flex-col">
       <header className="h-24 border p-4 flex justify-between items-center">
@@ -188,23 +139,11 @@ function Editor() {
               </div>
               <div className="wx-mini-app-page-render-section">
                 {blocks.map((block, index) => (
-                  <div
-                    id={block.id}
-                    className={`configurable-block ${
-                      index === focusingBlock ? "focusing-block" : ""
-                    }`}
-                    onClick={() => handleBlockFocus(index)}
-                    onMouseEnter={(event) => {
-                      handleBlockHover(index);
-                      updateAnchor({ element: event.currentTarget, index });
-                    }}
-                    // onMouseLeave={(e) => {
-                    //   updateAnchorEl(null);
-                    // }}
-                  >
-                    {index === hoveringBlockIndex && (
+                  <Tooltip
+                    interactive
+                    placement="right-start"
+                    title={
                       <BlockEditMenu
-                        anchor={anchor}
                         handleLayoutChange={() => {
                           updateIsSectionTemplateModalOpen(true);
                           updateLayoutChangeBlockIndex(index);
@@ -213,21 +152,31 @@ function Editor() {
                           dispatch(deleteBlock({ blockIndex: index }))
                         }
                       />
-                    )}
-                    <button
-                      className="add-section-btn add-above w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
-                      onClick={() => addConfigurableClock("above", index)}
+                    }
+                    TransitionComponent={Fade}
+                  >
+                    <div
+                      id={block.id}
+                      className={`configurable-block ${
+                        index === focusingBlock ? "focusing-block" : ""
+                      }`}
+                      onClick={() => handleBlockFocus(index)}
                     >
-                      新增区域
-                    </button>
-                    {blockRenderer(block)}
-                    <button
-                      className="add-section-btn add-below w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
-                      onClick={() => addConfigurableClock("below", index)}
-                    >
-                      新增区域
-                    </button>
-                  </div>
+                      <button
+                        className="add-section-btn add-above w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
+                        onClick={() => addConfigurableClock("above", index)}
+                      >
+                        新增区域
+                      </button>
+                      {blockRenderer(block, true)}
+                      <button
+                        className="add-section-btn add-below w-max bg-blue-400 font-light text-sm text-white px-2 rounded-xl outline-none"
+                        onClick={() => addConfigurableClock("below", index)}
+                      >
+                        新增区域
+                      </button>
+                    </div>
+                  </Tooltip>
                 ))}
                 <button
                   className="w-4/5 mx-auto flex justify-center items-center my-4 py-4 border border-black"

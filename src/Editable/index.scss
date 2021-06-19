@@ -1,7 +1,7 @@
 .edit-wrapper {
-  &:hover{
+  &:hover {
     @apply border;
-    .name-tag {
+    > .name-tag {
       @apply visible;
     }
   }
